@@ -1,6 +1,6 @@
 var config = {
     human: {
-        speed: 2,
+        speed: 5,
         radius: 5,
         density: 1/5000 // XX person / YY pixels
     },
@@ -13,8 +13,8 @@ var config = {
     behaviours: {
         // must not exceed 100
         infected: 1,
-        constant: 40, //doesnt move
-        distancing: 50 // attempts to move away from others
+        constant: 0, //doesnt move
+        distancing: 0 // attempts to move away from others
     },
     graph: {
         height: 200
@@ -178,7 +178,7 @@ populateHumans();
 var stats = [];
 var draw = function() {
     noStroke();
-    fill(255);
+    fill(0);
     rect(0, 0, width, height - config.graph.height);
     
     var _stats = [0, 0, 0, 0, humans.length];
