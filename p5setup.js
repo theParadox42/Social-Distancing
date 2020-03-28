@@ -7,8 +7,9 @@ function random(low, high) {
         return Math.random();
     }
 }
-var width = 400, height = 400;
+var width = 500, height = width;
 function setup() {
-    createCanvas(width, height);
+    createCanvas(1000, 1000);
     angleMode(DEGREES);
+    frameRate(20);
 }
