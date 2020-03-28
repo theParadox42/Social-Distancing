@@ -7,9 +7,11 @@ function random(low, high) {
         return Math.random();
     }
 }
-var width = 500, height = width;
+var round = Math.round;
+var floor = Math.floor;
+var _d = { w: 1000, h: 1200 };
+var width = _d.w, height = _d.h;
 function setup() {
-    createCanvas(1000, 1000);
+    createCanvas(_d.w, _d.h);
     angleMode(DEGREES);
-    frameRate(20);
 }
