@@ -6,7 +6,7 @@
  * Red = Contaigious
  * Turquoise = Recovered
  * Blue = Recovered & Immune
- * White(dot) / Black(graph) = Dead
+ * Grey = Dead
 
     == INTENSITIES
  * Bright = Practicing Distancing
@@ -21,8 +21,10 @@ var config = {
         speed: 4, // 4
         // (px) Radius of a human
         radius: 4, // 4
+        // (%rand) How much variation should be applied
+        variation: 0.1, // 0.1
         // (ppl/px^2) How dense the people are
-        density: 1/2000 // 1/4000
+        density: 1/4000 // 1/4000
     },
     virus: {
         // (time) Length of incubation
@@ -30,31 +32,34 @@ var config = {
         // (time) Length of Symptons
         symptomatic: 300, // 300
         // (%) Chance of Death
-        mortalityRate: 4/100, // 0/100
+        mortalityRate: 0/100, // 0/100
         // (%) Chance of Becoming Immune Once Recovered
-        immuneChance: 2/100 // 100/100
+        immuneChance: 100/100 // 100/100
     },
     behaviours: {
         infected: 1/100, // 1/100
         // (%) Doesnt move (stays @ home)
-        constant: 2/10, // 0/10
+        constant: 0/10, // 0/10
         // (%) Practices Social Distancing
-        distancing: 10/10, // 0/10
+        distancing: 0/10, // 0/10
         // (factor) How much to social distance
         distancingFactor: 50 // 50
     },
     graph: {
-        height: 100, // 200
+        height: 100, // 100
         // (int) How slow the graph goes
-        frameSkip: 5, // 3
+        frameSkip: 3, // 3
         // (bool) Show gray for dead or scale it
-        countDead: false // true
+        countDead: true, // true
+        // (int) How wide the post recordings should be
+        finalWidth: 10 // 10
     }
 };
 
 // HUMAN Behaviour Code
 var Human = function(id, infected) {
-    this.radius = config.human.radius;
+    var _v = config.human.variation
+    this.radius = config.human.radius * (random(-_v, _v) + 1);
     var _r = this.radius;
     this.x = random(_r, width - _r);
     this.y = random(_r, height - config.graph.height - _r);
@@ -65,8 +70,9 @@ var Human = function(id, infected) {
     this.handled = [];
     this.constant = false;
     this.distancing = false;
-    this.vx = Math.sin(_direction) * config.human.speed;
-    this.vy = Math.cos(_direction) * config.human.speed;
+    this.speed = config.human.speed * (random(-_v, _v) + 1);
+    this.vx = Math.sin(_direction) * this.speed;
+    this.vy = Math.cos(_direction) * this.speed;
     this.dead = false;
 };
 Human.prototype.draw = function() {
@@ -121,15 +127,15 @@ Human.prototype.update = function() {
         return;
     }
     var _speed = mag(this.vx, this.vy);
-    if (_speed != config.human.speed) {
-        var _m = config.human.speed / _speed
+    if (_speed != this.speed) {
+        var _m = this.speed / _speed
         this.vx *= _m;
         this.vy *= _m; 
     }
     this.x += this.vx;
     this.y += this.vy;
     var _r = this.radius;
-    var _b = this.distancing ? -10 : -1;
+    var _b = this.distancing ? -config.behaviours.distancingFactor : -1;
     this.vx *= this.x > width - _r || this.x < _r ? _b : 1;
     var boxHeight = height - config.graph.height - this.radius;
     this.vy *= this.y > boxHeight || this.y < _r ? _b : 1;
@@ -226,7 +232,6 @@ populateHumans();
 // Graph Code
 var stats = [];
 var graphStats = function(){
-    console.log("wat");
     var x = stats.length
     var col = stats[x - 1];
     var y = height;
@@ -257,7 +262,7 @@ var graphStats = function(){
     if (config.graph.countDead) {
         order.push({
             i: 5,
-            c: [l, l, l, l/5]
+            c: l/5
         });
     }
     for (var i = 0; i < order.length; i ++) {
@@ -292,7 +297,7 @@ var draw = function() {
         if (stats.length <= width) {
             graphStats();
         } else {
-            while(stats.length > width-10) {
+            while(stats.length > width - config.graph.finalWidth) {
                 stats.pop();
             }
             while(stats.length < width) {
