@@ -14,34 +14,45 @@
  * Dark = Living Life as Normal
  */
 
+// CHANGE THESE
 var config = {
     human: {
+        // (px/frame) Speed of the human
         speed: 5, // 5
+        // (px) Radius of a human
         radius: 5, // 5
+        // (ppl/px^2) How dense the people are
         density: 1/5000 // 1/5000
     },
     virus: {
-        // Length of incubation
+        // (time) Length of incubation
         incubation: 50, // 50
-        // Length of Symptons
+        // (time) Length of Symptons
         symptomatic: 300, // 300
-        // Chance of Death
-        mortalityRate: 0/100, // 0/100
-        // Chance of Becoming Immune Once Recovered
+        // (%) Chance of Death
+        mortalityRate: 5/100, // 0/100
+        // (%) Chance of Becoming Immune Once Recovered
         immuneChance: 0/100 // 100/100
     },
     behaviours: {
-        infected: 1/100, // 1/100 (Infected)
-        constant: 0/10, // 0/10 (Doesn't Move)
-        distancing: 10/10, // 0/10 (Keeps distance away)
-        distancingFactor: 2 // 3 (How much to distance)
+        infected: 1/100, // 1/100
+        // (%) Doesnt move (stays @ home)
+        constant: 0/10, // 0/10
+        // (%) Practices Social Distancing
+        distancing: 0/10, // 0/10
+        // (factor) How much to social distance
+        distancingFactor: 100 // 100
     },
     graph: {
         height: 200, // 200
-        frameSkip: 2 // 1-3 is normal
+        // (int) How slow the graph goes
+        frameSkip: 10, // 1-20
+        // (bool) Show gray for dead or scale it
+        countDead: false // true
     }
 };
 
+// HUMAN Behaviour Code
 var Human = function(id, infected) {
     this.x = random(width);
     this.y = random(height - config.graph.height);
@@ -158,7 +169,7 @@ Human.prototype.handle = function(anotherHuman) {
         }
     } else if(this.distancing && _distance < this.radius * sq(config.behaviours.distancingFactor)) {
         var _angle = atan2(this.x - anotherHuman.x, this.y - anotherHuman.y);
-        var _m = config.human.speed * this.radius * config.behaviours.distancingFactor / _distance;
+        var _m = config.human.speed * config.behaviours.distancingFactor / sq(_distance);
         this.vx += sin(_angle) * _m;
         this.vy += cos(_angle) * _m;
     }
@@ -172,7 +183,7 @@ Human.prototype.infect = function () {
         this._timer -= 2;
     }
 };
-
+// Create the humans
 var humans = [];
 var populateHumans = function() {
 
@@ -213,6 +224,7 @@ var populateHumans = function() {
 };
 populateHumans();
 
+// Graph Code
 var stats = [];
 var graphStats = function(){
     console.log("wat");
@@ -220,7 +232,7 @@ var graphStats = function(){
     var col = stats[x - 1];
     var y = height;
     var l = 255;
-    var m = config.graph.height / humans.length;
+    var m = config.graph.height / (humans.length - (config.graph.countDead ? 0 : col[5]));
     var order = [
         {
             i: 2,
@@ -241,24 +253,22 @@ var graphStats = function(){
         {
             i: 4,
             c: [0, 0, l]
-        },
-        {
-            i: 5,
-            c: [0, 0, 0]
         }
     ];
+    if (config.graph.countDead) {
+        order.push({
+            i: 5,
+            c: [l, l, l, l/5]
+        });
+    }
     for (var i = 0; i < order.length; i ++) {
         stroke(order[i].c);
         line(x, y - col[order[i].i] * m, x, y);
         y -= col[order[i].i] * m;
     }
-    // stroke(l, 0, 0);
-    // line(i, y - col[2] * m, i, y);
-    // y -= col[2] * m;
-    // stroke(l, l, 0);
-    console.log(1);
 };
 
+// Execution
 var draw = function() {
     noStroke();
     fill(0);
