@@ -18,11 +18,11 @@
 var config = {
     human: {
         // (px/frame) Speed of the human
-        speed: 5, // 5
+        speed: 4, // 4
         // (px) Radius of a human
-        radius: 5, // 5
+        radius: 4, // 4
         // (ppl/px^2) How dense the people are
-        density: 1/5000 // 1/5000
+        density: 1/2000 // 1/4000
     },
     virus: {
         // (time) Length of incubation
@@ -30,23 +30,23 @@ var config = {
         // (time) Length of Symptons
         symptomatic: 300, // 300
         // (%) Chance of Death
-        mortalityRate: 5/100, // 0/100
+        mortalityRate: 4/100, // 0/100
         // (%) Chance of Becoming Immune Once Recovered
-        immuneChance: 0/100 // 100/100
+        immuneChance: 2/100 // 100/100
     },
     behaviours: {
         infected: 1/100, // 1/100
         // (%) Doesnt move (stays @ home)
-        constant: 0/10, // 0/10
+        constant: 2/10, // 0/10
         // (%) Practices Social Distancing
-        distancing: 0/10, // 0/10
+        distancing: 10/10, // 0/10
         // (factor) How much to social distance
-        distancingFactor: 100 // 100
+        distancingFactor: 50 // 50
     },
     graph: {
-        height: 200, // 200
+        height: 100, // 200
         // (int) How slow the graph goes
-        frameSkip: 10, // 1-20
+        frameSkip: 5, // 3
         // (bool) Show gray for dead or scale it
         countDead: false // true
     }
@@ -54,9 +54,10 @@ var config = {
 
 // HUMAN Behaviour Code
 var Human = function(id, infected) {
-    this.x = random(width);
-    this.y = random(height - config.graph.height);
     this.radius = config.human.radius;
+    var _r = this.radius;
+    this.x = random(_r, width - _r);
+    this.y = random(_r, height - config.graph.height - _r);
     var _direction = random(360);
     this.stage = infected ? 2 : 0;
     this._timer = 0; 
@@ -98,22 +99,6 @@ Human.prototype.draw = function() {
 };
 Human.prototype.update = function() {
     this.handled = [];
-    if(!this.constant) {
-        var _speed = mag(this.vx, this.vy);
-        if (_speed != config.human.speed) {
-            var _m = config.human.speed / _speed
-            this.vx *= _m;
-            this.vy *= _m; 
-        }
-        this.x += this.vx;
-        this.y += this.vy;
-    }
-    var _r = this.radius
-    this.vx *= this.x > width - _r || this.x < _r ? -10 : 1;
-    var boxHeight = height - config.graph.height - this.radius;
-    this.vy *= this.y > boxHeight || this.y < _r ? -10 : 1;
-    this.x = constrain(this.x, _r, width - _r);
-    this.y = constrain(this.y, _r, boxHeight);
     if (this.stage === 1) {
         this._timer ++;
         if (this._timer > config.virus.incubation) {
@@ -132,6 +117,24 @@ Human.prototype.update = function() {
             }
         }
     }
+    if(this.constant) {
+        return;
+    }
+    var _speed = mag(this.vx, this.vy);
+    if (_speed != config.human.speed) {
+        var _m = config.human.speed / _speed
+        this.vx *= _m;
+        this.vy *= _m; 
+    }
+    this.x += this.vx;
+    this.y += this.vy;
+    var _r = this.radius;
+    var _b = this.distancing ? -10 : -1;
+    this.vx *= this.x > width - _r || this.x < _r ? _b : 1;
+    var boxHeight = height - config.graph.height - this.radius;
+    this.vy *= this.y > boxHeight || this.y < _r ? _b : 1;
+    this.x = constrain(this.x, _r, width - _r);
+    this.y = constrain(this.y, _r, boxHeight);
 };
 Human.prototype.go = function() {
     if (!this.dead) {
@@ -142,7 +145,7 @@ Human.prototype.go = function() {
 Human.prototype.handle = function(anotherHuman) {
     // Check if collision isn't needed
     var alreadyHandled = this.handled.some(function(id) {
-        return id == anotherHuman.id;
+        return id === anotherHuman.id;
     });
     if(alreadyHandled || anotherHuman.dead) {
         return;
@@ -161,7 +164,7 @@ Human.prototype.handle = function(anotherHuman) {
         }
         this.vx += _apply.x, this.vy += _apply.y;
         anotherHuman.vx -= _apply.x, anotherHuman.vy -= _apply.y;
-        if (this.stage == 2) {
+        if (this.stage === 2) {
             anotherHuman.infect();
         }
         if (anotherHuman.stage == 2) {
@@ -177,10 +180,6 @@ Human.prototype.handle = function(anotherHuman) {
 Human.prototype.infect = function () { 
     if (this.stage === 0 || this.stage === 3) {
         this.stage = 1;
-    } else if (this.stage == 1) {
-        this._timer += 2;
-    } else if (this.stage == 2) {
-        this._timer -= 2;
     }
 };
 // Create the humans
@@ -193,7 +192,7 @@ var populateHumans = function() {
     _constant = _b.constant;
     _distancing = _b.distancing;
     // Configure human population based upon area and density
-    var _humanPopulation = width * height * config.human.density;
+    var _humanPopulation = width * (height - config.graph.height) * config.human.density;
     // initialize humans
     for(var i = 0; i < _humanPopulation; i ++) {
         var counter = i % 100;
@@ -215,7 +214,7 @@ var populateHumans = function() {
     counter = 0;
     while(counter < humans.length * _distancing) {
         var i = floor(random(humans.length));
-        if (humans[i].distancing || (_constant + _distancing < 100 && humans[i].constant)) {
+        if (humans[i].distancing || (_constant + _distancing < 1 && humans[i].constant)) {
             continue;
         }
         humans[i].distancing = true;
@@ -274,7 +273,7 @@ var draw = function() {
     fill(0);
     rect(0, 0, width, height - config.graph.height);
     
-    var thisFrame = (frameCount % config.graph.frameSkip) == 0;
+    var thisFrame = (frameCount % config.graph.frameSkip) === 0;
     var _stats = Array(6).fill(0);
     for(var i = humans.length - 1; i > -1; i --) {
         var _h = humans[i];
@@ -292,6 +291,14 @@ var draw = function() {
         stats.push(_stats);
         if (stats.length <= width) {
             graphStats();
+        } else {
+            while(stats.length > width-10) {
+                stats.pop();
+            }
+            while(stats.length < width) {
+                stats.push(_stats);
+                graphStats();
+            }
         }
     }
 }
