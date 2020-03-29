@@ -7,6 +7,9 @@ function random(low, high) {
         return Math.random();
     }
 }
+function constrain(n, low, high) {
+    return Math.max(Math.min(n, high), low);
+}
 var round = Math.round;
 var floor = Math.floor;
 var _d = { w: 1000, h: 1200 };
