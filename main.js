@@ -32,23 +32,23 @@ var config = {
         // (time) Length of Symptons
         symptomatic: 300, // 300
         // (%) Chance of Death
-        mortalityRate: 0/100, // 0/100
+        mortalityRate: 100/100, // 4/100
         // (%) Chance of Becoming Immune Once Recovered
-        immuneChance: 100/100 // 100/100
+        immuneChance: 100/100 // 10/100
     },
     behaviours: {
         infected: 1/100, // 1/100
         // (%) Doesnt move (stays @ home)
         constant: 0/10, // 0/10
         // (%) Practices Social Distancing
-        distancing: 0/10, // 0/10
-        // (factor) How much to social distance
-        distancingFactor: 50 // 50
+        distancing: 5/10, // 0/10
+        // (int) How much to social distance
+        distancingFactor: 60 // 60
     },
     graph: {
         height: 100, // 100
         // (int) How slow the graph goes
-        frameSkip: 3, // 3
+        frameSkip: 5, // 3
         // (bool) Show gray for dead or scale it
         countDead: true, // true
         // (int) How wide the post recordings should be
@@ -109,6 +109,7 @@ Human.prototype.update = function() {
         this._timer ++;
         if (this._timer > config.virus.incubation) {
             this.stage ++;
+            this._timer = 0;
         }
     } else if (this.stage === 2) {
         this._timer ++;

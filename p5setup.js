@@ -12,7 +12,7 @@ function constrain(n, low, high) {
 }
 var round = Math.round;
 var floor = Math.floor;
-var _d = { w: 500, h: 600 };
+var _d = { w: window.innerWidth, h: window.innerHeight };
 var width = _d.w, height = _d.h;
 function setup() {
     createCanvas(_d.w, _d.h);
