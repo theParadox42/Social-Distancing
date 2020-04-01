@@ -14,47 +14,7 @@
  * Dark = Living Life as Normal
  */
 
-// CHANGE THESE
-var config = {
-    human: {
-        // (px/frame) Speed of the human
-        speed: 4, // 4
-        // (px) Radius of a human
-        radius: 4, // 4
-        // (%rand) How much variation should be applied
-        variation: 0.1, // 0.1
-        // (ppl/px^2) How dense the people are
-        density: 1/4000 // 1/4000
-    },
-    virus: {
-        // (time) Length of incubation
-        incubation: 50, // 50
-        // (time) Length of Symptons
-        symptomatic: 300, // 300
-        // (%) Chance of Death
-        mortalityRate: 100/100, // 4/100
-        // (%) Chance of Becoming Immune Once Recovered
-        immuneChance: 100/100 // 10/100
-    },
-    behaviours: {
-        infected: 1/100, // 1/100
-        // (%) Doesnt move (stays @ home)
-        constant: 0/10, // 0/10
-        // (%) Practices Social Distancing
-        distancing: 5/10, // 0/10
-        // (int) How much to social distance
-        distancingFactor: 60 // 60
-    },
-    graph: {
-        height: 100, // 100
-        // (int) How slow the graph goes
-        frameSkip: 5, // 3
-        // (bool) Show gray for dead or scale it
-        countDead: true, // true
-        // (int) How wide the post recordings should be
-        finalWidth: 10 // 10
-    }
-};
+updateConfig();
 
 // HUMAN Behaviour Code
 var Human = function(id, infected) {

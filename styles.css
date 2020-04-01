@@ -4,4 +4,15 @@ html, body {
 }
 body {
     background: black;
+    font-family: arial, sans;
+    color: white;
+}
+a {
+    color: inherit;
+}
+.container {
+    margin: 1rem;
+    padding: 1rem;
+    width: 90%;
+    max-width: 1000px;
 }
