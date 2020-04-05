@@ -34,7 +34,7 @@ var config = {
         incubation: {
             value: 50, // 50
             min: 0,
-            max: 500,
+            max: 1000,
             step: 10
         },
         // (time) Length of Symptons
