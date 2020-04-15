@@ -122,10 +122,13 @@ var config = {
 function updateConfig() {
     for (var p in config) {
         for (var c in config[p]) {
+            var i = config[p][c];
+            var _min = i.min;
+            var _max = i.max;
             if (localStorage[p] && typeof localStorage[p][c] == typeof config[p][c].value) {
-                config[p][c] = localStorage[p][c];
+                config[p][c] = constrain(localStorage[p][c], _min, _max);
             } else {
-                config[p][c] = config[p][c].value;
+                config[p][c] = constrain(config[p][c].value, _min, _max);
             }
         }
     }
