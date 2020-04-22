@@ -19,14 +19,17 @@ var config = {
         variation: {
             value: 0.1, // 0.1
             min: 0,
-            max: 15
+            max: 0.9,
+            step: 0.1,
+            scale: 10
         },
         // (ppl/px^2) How dense the people are
         density: {
             value:25/100000, // 25/100000
             min: 2  /100000,
             max: 100/100000,
-            step:2  /100000
+            step:2  /100000,
+            scale:   100000
         }
     },
     virus: {
@@ -49,14 +52,16 @@ var config = {
             value: 100/100, // 4/100
             min: 0,
             max: 1,
-            step: 1/100
+            step: 1/100,
+            scale: 100
         },
         // (%) Chance of Becoming Immune Once Recovered
         immuneChance: {
             value: 100/100, // 10/100
             min: 0,
             max: 1,
-            step: 1/100
+            step: 1/100,
+            scale: 100
         }
     },
     behaviours: {
@@ -64,21 +69,24 @@ var config = {
             value: 1/100, // 1/100
             min: 0,
             max: 1,
-            step: 1/200
+            step: 1/200,
+            scale: 200
         },
         // (%) Doesnt move (stays @ home)
         constant: {
             value: 0, // 0
             min: 0,
             max: 1,
-            step: 1/20
+            step: 1/20,
+            scale: 20
         },
         // (%) Practices Social Distancing
         distancing: {
             value: 0, // 0/10
             min: 0,
             max: 1,
-            step: 1/20
+            step: 1/20,
+            scale: 20
         },
         // (int) How much to social distance
         distancingFactor: {
@@ -118,18 +126,37 @@ var config = {
         }
     }
 };
-
-function updateConfig() {
+function readLocalStorage() {
+    localStorage.config = typeof localStorage.config == "string" ? localStorage.config : "";
+    console.log(localStorage.config);
+    var readObject = JSON.parse(localStorage.config);
     for (var p in config) {
         for (var c in config[p]) {
             var i = config[p][c];
             var _min = i.min;
             var _max = i.max;
-            if (localStorage[p] && typeof localStorage[p][c] == typeof config[p][c].value) {
-                config[p][c] = constrain(localStorage[p][c], _min, _max);
-            } else {
-                config[p][c] = constrain(config[p][c].value, _min, _max);
+            if (readObject[p] && typeof readObject[p][c] == typeof config[p][c].value) {
+                config[p][c].value = constrain(readObject[p][c], _min, _max);
             }
+        }
+    }
+};
+function loadLocalStorage() {
+    var loadObject = {};
+    for (var p in config) {
+        loadObject[p] = {};
+        for (var c in config[p]) {
+            var i = config[p][c];
+            loadObject[p][c] = i.value;
+        }
+    }
+    localStorage.config = JSON.stringify(loadObject);
+}
+function updateConfig() {
+    readLocalStorage();
+    for (var p in config) {
+        for (var c in config[p]) {
+            config[p][c] = config[p][c].value;
         }
     }
 }
